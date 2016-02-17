@@ -1,10 +1,9 @@
 imports:
-    - { resource: config.yml }
+    - { resource: config_prod.yml }
     - { resource: parameters_test.yml }
 
 framework:
     test: ~
-    csrf_protection: true
 
 doctrine:
     orm:
@@ -12,23 +11,10 @@ doctrine:
             default:
                 metadata_cache_driver: array
                 query_cache_driver:    array
-
-monolog:
-    handlers:
-        main:
-            type:         fingers_crossed
-            action_level: error
-            handler:      nested
-        nested:
-            type:  stream
-            path:  %kernel.logs_dir%/%kernel.environment%.log
-            level: debug
+                result_cache_driver:   array
 
 swiftmailer:
     disable_delivery: true
-
-assetic:
-    use_controller: false
 
 pim_enrich:
     record_mails: true
