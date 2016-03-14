@@ -361,3 +361,11 @@
 - Add string parameter `$formName` to `Pim\Bundle\EnrichBundle\Form\Type\MassEditAction\ClassifyType`
 - Remove method `getItemsName()` from `Pim\Bundle\EnrichBundle\MassEditAction\Operation\ConfigurableOperationInterface` and deleted from all classes implementing the interface
 - Remove method `getItemsName()` from `Pim\Bundle\EnrichBundle\MassEditAction\Operation\MassEditOperationInterface` and deleted from all classes implementing the interface
+- Change constructor of `Pim\Bundle\CatalogBundle\EventSubscriber\MongoDBODM\ProductRelatedEntityRemovalSubscriber`:
+    replace `Doctrine\Common\Persistence\ManagerRegistry` argument by `Akeneo\Component\Console\CommandLauncher`,
+    second argument was the product class parameter and is replaced by the `ProductRelatedEntityRemovalCommand` logfile
+- Change constructor of `Pim\Bundle\CatalogBundle\EventSubscriber\MongoDBODM\RemoveOutdatedProductsFromAssociationsSubscriber`.
+    Replace `Pim\Bundle\CatalogBundle\Doctrine\MongoDBODM\ProductRepositoryInterface` argument by `Akeneo\Component\Console\CommandLauncher`
+    and `Pim\Component\Catalog\Repository\AssociationTypeRepositoryInterface` argument by a string (`RemoveOutdatedProductsFromAssociationsCommand` logfile)
+- Change constructor of `Pim\Bundle\CatalogBundle\EventSubscriber\MongoDBODM\UpdateNormalizedProductDataSubscriber`.
+    Replace `Doctrine\Common\Persistence\ManagerRegistry` argument by `Akeneo\Component\Console\CommandLauncher` and add a string as third argument (`UpdateNormalizedProductDataCommand` logfile)
