@@ -6,5 +6,5 @@ doctrine_mongodb:
     default_database: "%mongodb_database%"
     document_managers:
         default:
-            auto_mapping: true
+            auto_mapping: false
     auto_generate_hydrator_classes: true
