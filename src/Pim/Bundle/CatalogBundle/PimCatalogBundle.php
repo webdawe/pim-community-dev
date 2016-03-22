@@ -46,7 +46,7 @@ class PimCatalogBundle extends Bundle
             ->addCompilerPass(new RegisterCompleteCheckerPass());
 
         $productMappings = [
-            realpath(__DIR__ . '/Resources/config/model/doctrine') => 'Pim\Component\Catalog\Model'
+            realpath(__DIR__ . '/Resources/config/doctrine') => 'Pim\Component\Catalog\Model'
         ];
 
         $container->addCompilerPass(
@@ -57,15 +57,13 @@ class PimCatalogBundle extends Bundle
             )
         );
 
-        if (class_exists(AkeneoStorageUtilsBundle::DOCTRINE_MONGODB)) {
-            $mongoDBClass = AkeneoStorageUtilsBundle::DOCTRINE_MONGODB;
-            $container->addCompilerPass(
-                $mongoDBClass::createYamlMappingDriver(
-                    $productMappings,
-                    ['doctrine.odm.mongodb.document_manager'],
-                    'akeneo_storage_utils.storage_driver.doctrine/mongodb-odm'
-                )
-            );
-        }
+        $mongoDBClass = AkeneoStorageUtilsBundle::DOCTRINE_MONGODB;
+        $container->addCompilerPass(
+            $mongoDBClass::createYamlMappingDriver(
+                $productMappings,
+                ['doctrine.odm.mongodb.document_manager'],
+                'akeneo_storage_utils.storage_driver.doctrine/mongodb-odm'
+            )
+        );
     }
 }
