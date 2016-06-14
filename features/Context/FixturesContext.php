@@ -35,6 +35,7 @@ use Pim\Component\Catalog\Model\AttributeOptionInterface;
 use Pim\Component\Catalog\Model\FamilyInterface;
 use Pim\Component\Catalog\Model\LocaleInterface;
 use Pim\Component\Catalog\Model\ProductInterface;
+use Pim\Component\Catalog\Repository\AttributeRepositoryInterface;
 use Pim\Component\Connector\Job\JobParameters\DefaultValuesProvider\ProductCsvImport;
 use Pim\Component\Connector\Job\JobParameters\DefaultValuesProvider\SimpleCsvExport;
 use Pim\Component\Connector\Processor\Denormalization\ProductProcessor;
@@ -657,6 +658,20 @@ class FixturesContext extends BaseFixturesContext
     }
 
     /**
+     * @Given /^the following groups for the product "([^"]*)": (.*)$/
+     */
+    public function theFollowingGroupsForTheProduct($identifier, $rawGroups)
+    {
+        $product = $this->getProduct(strtolower($identifier));
+        foreach ($this->listToArray($rawGroups) as $group) {
+            $group = $this->getGroup($group);
+            $product->addGroup($group);
+        }
+        $this->validate($product);
+        $this->getProductSaver()->save($product);
+    }
+
+    /**
      * @param string $attribute
      * @param string $referenceData
      *
@@ -1113,6 +1128,16 @@ class FixturesContext extends BaseFixturesContext
     }
 
     /**
+     * @param string $code
+     *
+     * @return \Pim\Component\Catalog\Model\GroupInterface
+     */
+    public function getGroup($code)
+    {
+        return $this->getGroupRepository()->findOneByIdentifier($code);
+    }
+
+    /**
      * @param string $username
      *
      * @return User
@@ -1419,7 +1444,19 @@ class FixturesContext extends BaseFixturesContext
                 $owner->addAssociation($association);
             }
 
-            $association->addProduct($this->getProduct($row['product']));
+            if (isset($row['products'])) {
+                $productIdentifiers = $this->listToArray($row['products']);
+                foreach ($productIdentifiers as $identifier) {
+                    $association->addProduct($this->getProduct($identifier));
+                }
+            }
+
+            if (isset($row['groups'])) {
+                $groupIdentifiers = $this->listToArray($row['groups']);
+                foreach ($groupIdentifiers as $identifier) {
+                    $association->addGroup($this->getGroup($identifier));
+                }
+            }
         }
 
         $this->getProductSaver()->save($owner);
@@ -1945,6 +1982,14 @@ class FixturesContext extends BaseFixturesContext
     protected function getProductRepository()
     {
         return $this->getContainer()->get('pim_catalog.repository.product');
+    }
+
+    /**
+     * @return \Pim\Component\Catalog\Repository\GroupRepositoryInterface
+     */
+    protected function getGroupRepository()
+    {
+        return $this->getContainer()->get('pim_catalog.repository.group');
     }
 
     /**
