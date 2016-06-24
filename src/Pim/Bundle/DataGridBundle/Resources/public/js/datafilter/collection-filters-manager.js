@@ -117,7 +117,7 @@ function(_, FiltersManager) {
             _.each(this.filters, function(filter, name) {
                 var shortName = '__' + name,
                     filterState;
-                if (_.has(state, name)) {
+                if (null !== state && Object.prototype.hasOwnProperty(state, name)) {
                     filterState = state[name];
                     if (!_.isObject(filterState)) {
                         filterState = {
