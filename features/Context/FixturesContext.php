@@ -863,7 +863,7 @@ class FixturesContext extends BaseFixturesContext
      */
     public function theFollowingRandomFiles(TableNode $table)
     {
-        $directory  = realpath(__DIR__ . '/fixtures/');
+        $directory  = realpath(__DIR__ . '/fixtures/random/');
         $characters = range('a', 'z');
 
         foreach ($table->getHash() as $row) {
@@ -893,7 +893,7 @@ class FixturesContext extends BaseFixturesContext
         $path = dirname($configuration['filePath']);
 
         foreach ($table->getRows() as $data) {
-            copy(__DIR__ . '/fixtures/'. $data[0], rtrim($path, '/') . '/' .$data[0]);
+            copy(__DIR__ . '/fixtures/'. $data[0], rtrim($path, '/') . '/' . basename($data[0]));
         }
     }
 
