@@ -12,15 +12,16 @@ Feature: Pin pages to pinbar
       | potatoe   |
     And I am logged in as "Mary"
 
-  @unstable
-  Scenario: Add pages to the pinbar
+  Scenario: I successfully add a product to pinned items
     Given I am on the "pineapple" product page
-    Then the product SKU should be "pineapple"
     When I pin the current page
+    Then I should see the text "Products pineapple | Edit"
+
+  Scenario: I'm successfully redirected to pinned item
+    Given I am on the "pineapple" product page
+    And I pin the current page
+    And I should see the text "Products pineapple | Edit"
     And I am on the "potatoe" product page
-    And I click on the pinned item "Products pineapple | Edit"
-    Then I should be on the product "pineapple" edit page
-    When I am on the "potatoe" product page
-    And I refresh current page
-    And I click on the pinned item "Products pineapple | Edit"
+    When I click on the pinned item "Products pineapple | Edit"
+    And I wait to be on the "pineapple" product page
     Then I should be on the product "pineapple" edit page
