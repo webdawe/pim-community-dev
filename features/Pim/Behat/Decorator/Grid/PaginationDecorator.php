@@ -18,9 +18,10 @@ class PaginationDecorator extends ElementDecorator
 
     /** @var array selectors for pagination components*/
     protected $selectors = [
-        'pagination input' => '.icons-holder input[type="text"]',
-        'page size button' => '.page-size .dropdown-toggle',
-        'page size list'   => '.page-size .dropdown-menu',
+        'pagination input'    => '.icons-holder input[type="text"]',
+        'page size button'    => '.page-size .dropdown-toggle',
+        'page size dropdown'  => '.page-size .dropdown-menu',
+        'page size list item' => '.page-size .dropdown-menu li a:contains("%d")',
     ];
 
     /**
@@ -63,13 +64,20 @@ class PaginationDecorator extends ElementDecorator
      */
     public function setPageSize($num)
     {
-        $this->getPageSizeButton()->click();
+        $this->spin(function () use ($num) {
+            $dropdown = $this->find('css', $this->selectors['page size dropdown']);
+            if (null === $dropdown) {
+                return null;
+            }
 
-        $list = $this->spin(function () {
-            return $this->find('css', $this->selectors['page size list']);
-        }, 'Cannot find the change page size list');
+            if (!$dropdown->isVisible()) {
+                $this->getPageSizeButton()->click();
+            }
 
-        $list->find('css', sprintf('li a:contains("%d")', (int) $num))->click();
+            $element = $this->find('css', sprintf($this->selectors['page size list item'], (int) $num));
+
+            return ((null === $element) || !$element->isVisible()) ? null : $element;
+        }, sprintf('Can not find page size %s in list', $num))->click();;
     }
 
     /**
