@@ -115,6 +115,8 @@ class StringFilter extends AbstractAttributeFilter implements AttributeFilterInt
      */
     protected function prepareValue($operator, $value)
     {
+        $value = preg_quote($value);
+        
         switch ($operator) {
             case Operators::STARTS_WITH:
                 $value = new \MongoRegex(sprintf('/^%s/i', $value));
