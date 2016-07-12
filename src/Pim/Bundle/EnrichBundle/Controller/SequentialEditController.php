@@ -2,9 +2,10 @@
 
 namespace Pim\Bundle\EnrichBundle\Controller;
 
-use Oro\Bundle\SecurityBundle\Annotation\AclAncestor;
+use Akeneo\Component\StorageUtils\Saver\SaverInterface;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Pim\Bundle\DataGridBundle\Extension\MassAction\MassActionDispatcher;
-use Pim\Bundle\EnrichBundle\Manager\SequentialEditManager;
+use Pim\Bundle\EnrichBundle\Factory\SequentialEditFactory;
 use Pim\Bundle\UserBundle\Context\UserContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,8 +28,14 @@ class SequentialEditController
     /** @var MassActionDispatcher */
     protected $massActionDispatcher;
 
-    /** @var SequentialEditManager */
-    protected $seqEditManager;
+    /** @var ObjectRepository */
+    protected $seqEditRepository;
+
+    /** @var SequentialEditFactory */
+    protected $seqEditFactory;
+
+    /** @var SaverInterface */
+    protected $seqEditSaver;
 
     /** @var UserContext */
     protected $userContext;
@@ -40,24 +47,28 @@ class SequentialEditController
     protected $objects;
 
     /**
-     * Constructor
-     *
      * @param RouterInterface       $router
      * @param MassActionDispatcher  $massActionDispatcher
-     * @param SequentialEditManager $seqEditManager
+     * @param ObjectRepository      $seqEditRepository
+     * @param SequentialEditFactory $seqEditFactory
+     * @param SaverInterface        $seqEditSaver
      * @param UserContext           $userContext
      * @param NormalizerInterface   $normalizer
      */
     public function __construct(
         RouterInterface $router,
         MassActionDispatcher $massActionDispatcher,
-        SequentialEditManager $seqEditManager,
+        ObjectRepository $seqEditRepository,
+        SequentialEditFactory $seqEditFactory,
+        SaverInterface $seqEditSaver,
         UserContext $userContext,
         NormalizerInterface $normalizer
     ) {
         $this->router               = $router;
         $this->massActionDispatcher = $massActionDispatcher;
-        $this->seqEditManager       = $seqEditManager;
+        $this->seqEditRepository    = $seqEditRepository;
+        $this->seqEditFactory       = $seqEditFactory;
+        $this->seqEditSaver         = $seqEditSaver;
         $this->userContext          = $userContext;
         $this->normalizer           = $normalizer;
     }
@@ -71,7 +82,7 @@ class SequentialEditController
      */
     public function sequentialEditAction(Request $request)
     {
-        if ($this->seqEditManager->findByUser($this->userContext->getUser())) {
+        if ($this->seqEditRepository->findBy(['user' => $this->userContext->getUser()])) {
             return new RedirectResponse(
                 $this->router->generate(
                     'pim_enrich_product_index',
@@ -80,12 +91,12 @@ class SequentialEditController
             );
         }
 
-        $sequentialEdit = $this->seqEditManager->createEntity(
-            $this->getObjects($request),
+        $sequentialEdit = $this->seqEditFactory->create(
+            $this->massActionDispatcher->dispatch($request),
             $this->userContext->getUser()
         );
 
-        $this->seqEditManager->save($sequentialEdit);
+        $this->seqEditSaver->save($sequentialEdit);
 
         return new RedirectResponse(
             $this->router->generate(
@@ -99,40 +110,14 @@ class SequentialEditController
     }
 
     /**
-     * @param Request $request
-     *
      * @return JsonResponse
      */
-    public function getAction(Request $request)
+    public function getAction()
     {
-        $sequentialEdit = $this->seqEditManager->findByUser($this->userContext->getUser());
+        $sequentialEdit = $this->seqEditRepository->findBy([
+            'user' => $this->userContext->getUser()
+        ]);
 
         return new JsonResponse($this->normalizer->normalize($sequentialEdit, 'internal_api'));
-    }
-
-    /**
-     * Get products to mass edit
-     *
-     * @param Request $request
-     *
-     * @return array
-     */
-    protected function getObjects(Request $request)
-    {
-        if ($this->objects === null) {
-            $this->dispatchMassAction($request);
-        }
-
-        return $this->objects;
-    }
-
-    /**
-     * Dispatch mass action
-     *
-     * @param Request $request
-     */
-    protected function dispatchMassAction(Request $request)
-    {
-        $this->objects = $this->massActionDispatcher->dispatch($request);
     }
 }

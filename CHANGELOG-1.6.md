@@ -85,7 +85,7 @@
 - Remove methods `getTreesQB` and `getAllChildrenQueryBuilder` in `Akeneo\Component\Classification\Repository\CategoryRepositoryInterface`
 - Remove method `getItemIdsInCategory` in `Akeneo\Component\Classification\Repository\ItemCategoryRepositoryInterface`
 - Replace all parameters in `Akeneo\Component\Classification\Repository\ItemCategoryRepositoryInterface::getItemsCountInCategory()` by `array $categoryIds`
-- Change constructor of `Pim\Bundle\EnrichBundle\Controller\ProductController`. Remove `Pim\Bundle\CatalogBundle\Manager\ProductCategoryManager`
+- Change constructor of `Pim\Bundle\EnrichBundle\Controller\ProductController`. Remove `Pim\Bundle\CatalogBundle\Manager\ProductCategoryManager` and `Pim\Bundle\EnrichBundle\Manager\SequentialEditManager` + add `Doctrine\Common\Persistence\ObjectRepository` and `Akeneo\Component\StorageUtils\Remover\RemoverInterface`
 - Change constructor of `Pim\Bundle\EnrichBundle\Form\Type\ChannelType`. Add `Pim\Bundle\EnrichBundle\Form\DataTransformer\ChoicesProviderInterface`
 - Change constructor of `Pim\Bundle\UserBundle\Form\Subscriber\UserPreferencesSubscriber`. Add `Pim\Bundle\EnrichBundle\Form\DataTransformer\ChoicesProviderInterface`
 - Remove deprecated methods `getProductCountByTree` and `getProductsCountInCategory` in `Pim\Component\Catalog\Repository\ProductCategoryRepositoryInterface`

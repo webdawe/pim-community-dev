@@ -177,7 +177,8 @@ services:
             - '@pim_user.context.user'
             - '@oro_security.security_facade'
             - '@pim_catalog.saver.product'
-            - '@pim_enrich.manager.sequential_edit'
+            - '@pim_enrich.repository.sequential_edit'
+            - '@pim_enrich.remover.sequential_edit'
             - '@pim_catalog.builder.product'
             - '%pim_catalog.entity.category.class%'
 

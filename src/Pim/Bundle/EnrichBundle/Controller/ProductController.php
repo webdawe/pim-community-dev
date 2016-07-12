@@ -3,12 +3,12 @@
 namespace Pim\Bundle\EnrichBundle\Controller;
 
 use Akeneo\Component\Classification\Repository\CategoryRepositoryInterface;
+use Akeneo\Component\StorageUtils\Remover\RemoverInterface;
 use Akeneo\Component\StorageUtils\Saver\SaverInterface;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Oro\Bundle\SecurityBundle\Annotation\AclAncestor;
 use Oro\Bundle\SecurityBundle\SecurityFacade;
-use Pim\Bundle\EnrichBundle\Flash\Message;
-use Pim\Bundle\EnrichBundle\Manager\SequentialEditManager;
 use Pim\Bundle\UserBundle\Context\UserContext;
 use Pim\Component\Catalog\Builder\ProductBuilderInterface;
 use Pim\Component\Catalog\Model\CategoryInterface;
@@ -67,8 +67,11 @@ class ProductController
     /** @var SaverInterface */
     protected $productSaver;
 
-    /** @var SequentialEditManager */
-    protected $seqEditManager;
+    /** @var ObjectRepository */
+    protected $seqEditRepository;
+
+    /** @var RemoverInterface */
+    protected $seqEditRemover;
 
     /** @var ProductBuilderInterface */
     protected $productBuilder;
@@ -89,7 +92,8 @@ class ProductController
      * @param UserContext                 $userContext
      * @param SecurityFacade              $securityFacade
      * @param SaverInterface              $productSaver
-     * @param SequentialEditManager       $seqEditManager
+     * @param ObjectRepository            $seqEditRepository
+     * @param RemoverInterface            $seqEditRemover
      * @param ProductBuilderInterface     $productBuilder
      * @param string                      $categoryClass
      */
@@ -103,7 +107,8 @@ class ProductController
         UserContext $userContext,
         SecurityFacade $securityFacade,
         SaverInterface $productSaver,
-        SequentialEditManager $seqEditManager,
+        ObjectRepository $seqEditRepository,
+        RemoverInterface $seqEditRemover,
         ProductBuilderInterface $productBuilder,
         $categoryClass
     ) {
@@ -115,7 +120,8 @@ class ProductController
         $this->userContext        = $userContext;
         $this->securityFacade     = $securityFacade;
         $this->productSaver       = $productSaver;
-        $this->seqEditManager     = $seqEditManager;
+        $this->seqEditRepository  = $seqEditRepository;
+        $this->seqEditRemover     = $seqEditRemover;
         $this->productBuilder     = $productBuilder;
         $this->categoryRepository = $categoryRepository;
         $this->categoryClass      = $categoryClass;
@@ -129,9 +135,15 @@ class ProductController
      *
      * @return Response
      */
-    public function indexAction(Request $request)
+    public function indexAction()
     {
-        $this->seqEditManager->removeByUser($this->tokenStorage->getToken()->getUser());
+        $sequentialEdit = $this->seqEditRepository->findBy([
+            'user' => $this->tokenStorage->getToken()->getUser()
+        ]);
+
+        if (null !== $sequentialEdit) {
+            $this->seqEditRemover->remove($sequentialEdit);
+        }
 
         return [
             'locales'    => $this->getUserLocales(),
@@ -249,7 +261,6 @@ class ProductController
     {
         return $this->categoryRepository->getFilledTree($parent, $categories);
     }
-
 
     /**
      * {@inheritdoc}
