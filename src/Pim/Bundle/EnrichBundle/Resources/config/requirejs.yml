@@ -238,6 +238,7 @@ config:
         pim/filter/product/category:          pimenrich/js/filter/product/category
         pim/filter/product/category/selector: pimenrich/js/filter/product/category/selector
         pim/filter/product/identifier:        pimenrich/js/filter/product/identifier
+        pim/filter/attribute/price:           pimenrich/js/filter/attribute/price
 
         # Product edit form
         pim/field-manager:                  pimenrich/js/product/field-manager
@@ -391,3 +392,4 @@ config:
         pim/template/filter/product/category:          pimenrich/templates/filter/product/category.html
         pim/template/filter/product/category/selector: pimenrich/templates/filter/product/category/selector.html
         pim/template/filter/product/identifier:        pimenrich/templates/filter/product/identifier.html
+        pim/template/filter/attribute/price:           pimenrich/templates/filter/attribute/price.html

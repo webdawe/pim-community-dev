@@ -1,0 +1,17 @@
+<div>
+    <select class="operator" <%- isEditable ? '' : 'disabled' %> name="filter-operator">
+        <% _.each(operatorChoices, function (operatorChoice) { %>
+            <option value="<%- operatorChoice %>"<%- operator === operatorChoice ? ' selected' : '' %>>
+                <%- __('pim_enrich.export.product.filter.price.operators.' + operatorChoice) %>
+            </option>
+        <% }); %>
+    </select>
+
+    <input type="number" name="filter-value-data" value="<%- value.data %>"/>
+    <input
+        class="select2"
+        type="hidden"
+        name="filter-value-currency"
+        value="<%- currencies %>"
+        <%- isEditable ? '' : 'disabled' %>
+</div>

@@ -36,3 +36,15 @@ extensions:
 
     pim-filter-simpleselect:
         module: pim/filter/simpleselect
+
+    pim-filter-attribute-price:
+        module: pim/filter/attribute/price
+        config:
+            operators:
+                - ALL
+                - "="
+                - ">="
+                - "<="
+                - ">"
+                - "<"
+                - EMPTY
