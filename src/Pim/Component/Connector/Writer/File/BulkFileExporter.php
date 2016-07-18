@@ -3,6 +3,7 @@
 namespace Pim\Component\Connector\Writer\File;
 
 use Akeneo\Component\FileStorage\Exception\FileTransferException;
+use Akeneo\Component\FileStorage\Model\FileInfoInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -93,10 +94,32 @@ class BulkFileExporter
     /**
      * Copy a medium to the target
      *
-     * @param array|mixed $medium
-     * @param string      $target
+     * @param array  $medium
+     * @param string $target
      */
-    protected function doCopy($medium, $target)
+    protected function doCopy(array $medium, $target)
+    {
+        $this->manageMediaWhenLogicIsInProcessor($medium, $target);
+//        $this->manageMediaWhenLogicIsInWriter($medium, $target);
+    }
+
+    protected function manageMediaWhenLogicIsInProcessor(array $medium, $target)
+    {
+        $target = $target . DIRECTORY_SEPARATOR . $medium['value'];
+        $fileSystem = new Filesystem();
+        $fileSystem->mkdir(dirname($target));
+
+        try {
+            $this->fileExporter->export($medium['value'], $target, $medium['storage']);
+            $this->addCopiedMedium($medium, $target);
+        } catch (FileTransferException $e) {
+            $this->addError($medium, 'The media has not been found or is not currently available');
+        } catch (\LogicException $e) {
+            $this->addError($medium, sprintf('The media has not been copied. %s', $e->getMessage()));
+        }
+    }
+
+    protected function manageMediaWhenLogicIsInWriter(array $medium, $target)
     {
         if (isset($medium['filePath']) && isset($medium['exportPath'])) {
             $target     = $target . DIRECTORY_SEPARATOR . $medium['exportPath'];

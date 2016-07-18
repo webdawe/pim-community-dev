@@ -7,9 +7,12 @@ use Akeneo\Component\Batch\Item\ItemProcessorInterface;
 use Akeneo\Component\Batch\Job\JobParameters;
 use Akeneo\Component\Batch\Model\StepExecution;
 use Akeneo\Component\Batch\Step\StepExecutionAwareInterface;
+use Akeneo\Component\FileStorage\Model\FileInfoInterface;
 use Akeneo\Component\StorageUtils\Detacher\ObjectDetacherInterface;
 use Pim\Component\Catalog\Builder\ProductBuilderInterface;
+use Pim\Component\Catalog\Model\ProductInterface;
 use Pim\Component\Catalog\Repository\ChannelRepositoryInterface;
+use Pim\Component\Connector\Writer\File\BulkFileExporter;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
@@ -38,22 +41,34 @@ class ProductProcessor extends AbstractConfigurableStepElement implements
     /** @var StepExecution */
     protected $stepExecution;
 
+    /** @var BulkFileExporter */
+    protected $mediaCopier;
+
+    /** @var array */
+    protected $mediaAttributeTypes;
+
     /**
      * @param NormalizerInterface        $normalizer
      * @param ChannelRepositoryInterface $channelRepository
      * @param ProductBuilderInterface    $productBuilder
      * @param ObjectDetacherInterface    $detacher
+     * @param BulkFileExporter           $mediaCopier
+     * @param array                      $mediaAttributeTypes
      */
     public function __construct(
         NormalizerInterface $normalizer,
         ChannelRepositoryInterface $channelRepository,
         ProductBuilderInterface $productBuilder,
-        ObjectDetacherInterface $detacher
+        ObjectDetacherInterface $detacher,
+        BulkFileExporter $mediaCopier,
+        array $mediaAttributeTypes
     ) {
         $this->normalizer = $normalizer;
         $this->detacher = $detacher;
         $this->channelRepository = $channelRepository;
         $this->productBuilder = $productBuilder;
+        $this->mediaCopier = $mediaCopier;
+        $this->mediaAttributeTypes = $mediaAttributeTypes;
     }
 
     /**
@@ -75,6 +90,10 @@ class ProductProcessor extends AbstractConfigurableStepElement implements
             'localeCodes' => array_intersect($channel->getLocaleCodes(), $parameters->get('locales')),
         ]);
 
+        if ($parameters->has('with_media') && $parameters->get('with_media')) {
+            $this->manageMediaWhenLogicIsInProcessor($product, $parameters);
+        }
+
         $this->detacher->detach($product);
 
         return $productStandard;
@@ -86,5 +105,51 @@ class ProductProcessor extends AbstractConfigurableStepElement implements
     public function setStepExecution(StepExecution $stepExecution)
     {
         $this->stepExecution = $stepExecution;
+    }
+
+    /**
+     * @param ProductInterface $product
+     * @param JobParameters    $parameters
+     */
+    protected function manageMediaWhenLogicIsInProcessor(ProductInterface $product, JobParameters $parameters)
+    {
+        $media = $this->getMediaProductValues($product);
+
+        $directory = dirname($parameters->get('filePath'))
+            . DIRECTORY_SEPARATOR
+            . $this->stepExecution->getJobExecution()->getJobInstance()->getCode()
+            . DIRECTORY_SEPARATOR
+            . $this->stepExecution->getJobExecution()->getId()
+            . DIRECTORY_SEPARATOR;
+
+        $this->mediaCopier->exportAll([$media], $directory);
+
+        foreach ($this->mediaCopier->getErrors() as $error) {
+            $this->stepExecution->addWarning($error['message'], [], $error['medium']);
+        }
+    }
+
+    /**
+     * Get media attributes
+     *
+     * @param ProductInterface $product
+     *
+     * @return FileInfoInterface[]
+     */
+    protected function getMediaProductValues(ProductInterface $product)
+    {
+        $values = [];
+        foreach ($product->getValues() as $value) {
+            if (in_array($value->getAttribute()->getAttributeType(), $this->mediaAttributeTypes)) {
+                if (null !== $medium = $value->getMedia()) {
+                    $values[] = [
+                        'value'   => $medium->getKey(),
+                        'storage' => $medium->getStorage()
+                    ];
+                }
+            }
+        }
+
+        return $values;
     }
 }

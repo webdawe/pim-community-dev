@@ -188,6 +188,9 @@ services:
             - '@pim_connector.factory.flat_item_buffer'
             - '@pim_connector.writer.file.product.bulk_file_exporter'
             - '@pim_connector.writer.file.product.flat_item_buffer_flusher'
+            - '@pim_catalog.repository.attribute'
+            - '@akeneo_file_storage.repository.file_info'
+            - '%catalog_storage_dir%'
 
     pim_connector.writer.file.csv_variant_group:
         class: '%pim_connector.writer.file.csv_variant_group.class%'
