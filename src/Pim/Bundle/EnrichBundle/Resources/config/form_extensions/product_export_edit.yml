@@ -57,7 +57,7 @@ extensions:
         module: pim/export/product/edit/content/data/default-attribute-filters
         parent: pim-product-export-edit-content-data
         config:
-            types: ['pim_catalog_identifier']
+            types: ['pim_catalog_identifier', 'pim_catalog_metric']
 
     pim-product-export-edit-content-data-help:
         module: pim/export/product/edit/content/data/help
@@ -80,7 +80,7 @@ filters:
         pim_catalog_identifier:
             view: pim-filter-product-identifier
         pim_catalog_metric:
-            view: pim-filter-text
+            view: pim-filter-attribute-metric
             # view: pim-filter-metric
         pim_catalog_price_collection:
             view: pim-filter-text
