@@ -19,6 +19,7 @@ use Pim\Component\Catalog\Model\MetricInterface;
 use Pim\Component\Catalog\Model\ProductInterface;
 use Pim\Component\Catalog\Model\ProductPriceInterface;
 use Pim\Component\Catalog\Model\ProductValueInterface;
+use Pim\Component\Catalog\Repository\AttributeRepositoryInterface;
 use Pim\Component\Catalog\Repository\ChannelRepositoryInterface;
 use Pim\Component\Connector\ArrayConverter\FlatToStandard\Product\FieldSplitter;
 use Prophecy\Argument;
@@ -37,7 +38,8 @@ class ProductToFlatArrayProcessorSpec extends ObjectBehavior
         ObjectDetacherInterface $objectDetacher,
         UserProviderInterface $userProvider,
         TokenStorageInterface $tokenStorage,
-        FieldSplitter $fieldSplitter
+        FieldSplitter $fieldSplitter,
+        AttributeRepositoryInterface $attributeRepository
     ) {
         $this->beConstructedWith(
             $serializer,
@@ -47,6 +49,7 @@ class ProductToFlatArrayProcessorSpec extends ObjectBehavior
             $userProvider,
             $tokenStorage,
             $fieldSplitter,
+            $attributeRepository,
             'upload/path/'
         );
         $this->setStepExecution($stepExecution);
