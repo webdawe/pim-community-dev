@@ -1,0 +1,24 @@
+<div class="choicefilter">
+    <div class="input-prepend">
+        <div class="btn-group">
+            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" <%- isEditable ? '' : 'disabled' %>>
+                <%- __('pim_enrich.export.product.filter.multi_select.operators.' + operator) %>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <% _.each(operatorChoices, function (operatorChoice) { %>
+                    <li<% if (operatorChoice == operator) { %> class="active"<% } %>>
+                        <a class="operator_choice" href="#" data-value="<%= operatorChoice %>"><%= operatorChoice %></a>
+                    </li>
+                <% }); %>
+            </ul>
+            <input
+                class="select2"
+                name="filter-value"
+                type="hidden"
+                value="<%- value ? value : '' %>"
+                <%- isEditable ? '' : 'disabled' %>
+            />
+        </div>
+    </div>
+</div>

@@ -36,3 +36,11 @@ extensions:
 
     pim-filter-simpleselect:
         module: pim/filter/simpleselect
+
+    pim-filter-multiselect-reference-data:
+        module: pim/filter/attribute/multiselect-reference-data
+        config:
+            url: pim_ui_ajaxentity_list
+            operators:
+                - IN LIST
+                - EMPTY
