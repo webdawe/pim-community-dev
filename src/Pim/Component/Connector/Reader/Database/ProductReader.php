@@ -102,7 +102,7 @@ class ProductReader extends AbstractConfigurableStepElement implements ItemReade
         }
 
         if (null !== $product) {
-            $this->objectDetacher->detach($product);
+//            $this->objectDetacher->detach($product);
             $channel = $this->getConfiguredChannel();
             if ($channel) {
                 $this->metricConverter->convert($product, $channel);
