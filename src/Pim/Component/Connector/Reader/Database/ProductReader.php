@@ -82,9 +82,15 @@ class ProductReader extends AbstractConfigurableStepElement implements ItemReade
      */
     public function initialize()
     {
-        $pqb = $this->getProductQueryBuilder();
-        $filters = $this->getConfiguredFilters();
+        $channel = $this->getConfiguredChannel();
+        if (null !== $channel && $this->generateCompleteness) {
+            $this->completenessManager->generateMissingForChannel($channel);
+        }
 
+        $filters = $this->getConfiguredFilters();
+        if (null === $filters) {
+            return null;
+        }
         $this->products = $this->getProductsCursor($filters);
     }
 
@@ -95,7 +101,7 @@ class ProductReader extends AbstractConfigurableStepElement implements ItemReade
     {
         $product = null;
 
-        if ($this->products->valid()) {
+        if (null !== $this->products && $this->products->valid()) {
             $product = $this->products->current();
             $this->stepExecution->incrementSummaryInfo('read');
             $this->products->next();
@@ -182,7 +188,7 @@ class ProductReader extends AbstractConfigurableStepElement implements ItemReade
     /**
      * @param array $filters
      *
-     * @return CursorInterface
+     * @return CursorInterface|null
      */
     protected function getProductsCursor(array $filters)
     {
@@ -205,11 +211,6 @@ class ProductReader extends AbstractConfigurableStepElement implements ItemReade
                 $filter['value'],
                 $filter['context']
             );
-        }
-
-        $channel = $this->getConfiguredChannel();
-        if (null !== $channel && $this->generateCompleteness) {
-            $this->completenessManager->generateMissingForChannel($channel);
         }
 
         return $productQueryBuilder->execute();
