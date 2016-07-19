@@ -57,7 +57,7 @@ extensions:
         module: pim/export/product/edit/content/data/default-attribute-filters
         parent: pim-product-export-edit-content-data
         config:
-            types: ['pim_catalog_identifier']
+            types: ['pim_catalog_identifier', 'pim_reference_data_multiselect']
 
     pim-product-export-edit-content-data-help:
         module: pim/export/product/edit/content/data/help
@@ -103,5 +103,4 @@ filters:
         pim_reference_data_simpleselect: #to move in reference data bundle
             view: pim-filter-simpleselect
         pim_reference_data_multiselect:
-            view: pim-filter-text
-            # view: pim-filter-multiselect
+            view: pim-filter-multiselect-reference-data
