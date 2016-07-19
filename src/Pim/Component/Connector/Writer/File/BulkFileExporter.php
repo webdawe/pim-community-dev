@@ -42,6 +42,8 @@ class BulkFileExporter
      */
     public function exportAll(array $items, $target)
     {
+        $this->copiedMedia = [];
+
         foreach ($items as $media) {
             foreach ($media as $medium) {
                 $this->doCopy($medium, $target);

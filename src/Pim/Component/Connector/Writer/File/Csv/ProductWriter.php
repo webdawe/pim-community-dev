@@ -115,8 +115,9 @@ class ProductWriter extends AbstractFileWriter implements ItemWriterInterface, A
         $flatItems = [];
         foreach ($products as $product) {
             if ($parameters->has('with_media') && $parameters->get('with_media')) {
-                $product = $this->manageMediaWhenLogicIsInProcessor($product, $parameters);
+//                $product = $this->manageMediaWhenLogicIsInProcessor($product, $parameters);
 //                $this->manageMediaWhenLogicIsInWriter($product);
+                $product = $this->manageMediaWhenLogicIsSpecificStep($product, $parameters);
             }
 
             $flatItems[] = $this->arrayConverter->convert($product, [
@@ -200,6 +201,30 @@ class ProductWriter extends AbstractFileWriter implements ItemWriterInterface, A
         }
 
         return $target . DIRECTORY_SEPARATOR . substr(strrchr($value['data']['filePath'], '_'), 1);
+    }
+
+    protected function manageMediaWhenLogicIsSpecificStep(array $product, JobParameters $parameters)
+    {
+        $attributeTypes = $this->attributeRepository->getAttributeTypeByCodes(array_keys($product['values']));
+        $directory = dirname($parameters->get('filePath'))
+                     . DIRECTORY_SEPARATOR
+                     . $this->stepExecution->getJobExecution()->getJobInstance()->getCode()
+                     . DIRECTORY_SEPARATOR
+                     . $this->stepExecution->getJobExecution()->getId()
+                     . DIRECTORY_SEPARATOR;
+
+        foreach ($attributeTypes as $code => $attributeType) {
+            if (in_array($attributeType, ['pim_catalog_file', 'pim_catalog_image'])) {
+                foreach ($product['values'][$code] as $index => $item) {
+                    if (null !== $item['data'] && file_exists($directory . $item['data']['filePath'])) {
+                        $exportPath = $this->generate($item, $code, $product['values']['sku'][0]['data']);
+                        $product['values'][$code][$index]['data']['filePath'] = $exportPath;
+                    }
+                }
+            }
+        }
+
+        return $product;
     }
 
     protected function manageMediaWhenLogicIsInProcessor(array $product, JobParameters $parameters)

@@ -188,6 +188,16 @@ services:
             - '@pim_connector.processor.normalization.variant_group'
             - '@pim_connector.writer.file.csv_variant_group'
 
+    pim_connector.step.csv_media.export:
+        class: '%pim_connector.step.item_step.class%'
+        arguments:
+            - 'export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@pim_connector.reader.database.product'
+            - '@pim_connector.processor.normalization.media'
+            - '@pim_connector.writer.file.media'
+
     # XLSX Import steps -----------------------------------------------------------------------------------------------
     pim_connector.step.xlsx_attribute.import:
         class: '%pim_connector.step.item_step.class%'
